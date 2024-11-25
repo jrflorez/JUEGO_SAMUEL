@@ -7,6 +7,7 @@ let gameInterval;
 let obstacleSpeed = 5;
 let starSpeed = 2; // Velocidad inicial de las estrellitas
 let playerPosition = 170;
+let starInterval;
 
 // Crear contenedor de estrellitas
 const starContainer = document.createElement("div");
@@ -35,7 +36,10 @@ function increaseStarSpeed() {
 // Mostrar mensaje de celebración y detener el juego
 function showCelebration() {
     clearInterval(gameInterval); // Detener el juego
-    clearInterval(starInterval); // Detener la generación de estrellas
+    clearInterval(starInterval); // Detener la generación de nuevas estrellas
+
+    // Eliminar todas las estrellas existentes
+    document.querySelectorAll(".star").forEach((star) => star.remove());
 
     // Crear contenedor de celebración
     const celebrationContainer = document.createElement("div");
@@ -103,6 +107,7 @@ function startGame() {
             playerRect.bottom > obstacleRect.top
         ) {
             clearInterval(gameInterval);
+            clearInterval(starInterval); // Detener estrellas en caso de colisión
             alert(`¡Game Over! Puntaje final: ${score}`);
             window.location.reload(); // Reiniciar el juego
         }
