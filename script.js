@@ -1,118 +1,50 @@
-const playerCar = document.getElementById("player-car");
-const obstacle = document.getElementById("obstacle");
-const scoreDisplay = document.getElementById("score");
-
 let score = 0;
 let gameInterval;
-let obstacleSpeed = 5;
-let starSpeed = 2; // Velocidad inicial de las estrellitas
-let playerPosition = 170;
-let starInterval;
 
-// Crear contenedor de estrellitas
-const starContainer = document.createElement("div");
-starContainer.id = "star-container";
-document.body.appendChild(starContainer);
+const startBtn = document.getElementById("start-btn");
+const starsContainer = document.getElementById("stars-container");
+const scoreDisplay = document.getElementById("score");
 
-// Generar estrellitas constantes durante el juego
-function generateStars() {
-    const star = document.createElement("div");
-    star.classList.add("star");
-    star.style.left = `${Math.random() * 100}vw`;
-    star.style.animationDuration = `${Math.random() * 2 + starSpeed}s`; // Velocidad ajustable
-    starContainer.appendChild(star);
+// Crear el mensaje especial
+const specialMessage = document.createElement("div");
+specialMessage.id = "special-message";
+specialMessage.textContent = "❤️ 🎮TE AMO SU QUERIDO PADRESITO 🎮 ❤️";
+specialMessage.style.display = "none"; // Oculto inicialmente
+document.body.appendChild(specialMessage);
 
-    // Eliminar estrellas cuando terminan su animación
-    star.addEventListener("animationend", () => {
-        star.remove();
-    });
-}
-
-// Incrementar velocidad de las estrellas gradualmente
-function increaseStarSpeed() {
-    starSpeed += 0.2; // Incremento gradual
-}
-
-// Mostrar mensaje de celebración y detener el juego
-function showCelebration() {
-    clearInterval(gameInterval); // Detener el juego
-    clearInterval(starInterval); // Detener la generación de nuevas estrellas
-
-    // Eliminar todas las estrellas existentes
-    document.querySelectorAll(".star").forEach((star) => star.remove());
-
-    // Crear contenedor de celebración
-    const celebrationContainer = document.createElement("div");
-    celebrationContainer.id = "celebration";
-    celebrationContainer.innerHTML = "<h2>🎉 ¡Felicidades! Ganaste 🎉</h2>";
-    document.body.appendChild(celebrationContainer);
-
-    // Generar estrellas de celebración
-    for (let i = 0; i < 50; i++) {
-        const star = document.createElement("div");
-        star.classList.add("star");
-        star.style.left = `${Math.random() * 100}vw`;
-        star.style.animationDuration = `${Math.random() * 2 + 1}s`; // Estrellas rápidas
-        celebrationContainer.appendChild(star);
-    }
-
-    // Reiniciar el juego después de 5 segundos
-    setTimeout(() => {
-        celebrationContainer.remove();
-        window.location.reload();
-    }, 5000);
-}
-
-// Función principal del juego
-function startGame() {
+startBtn.addEventListener("click", () => {
     score = 0;
-    obstacleSpeed = 5;
-    starSpeed = 2;
-    let obstaclePosition = -100;
-
-    // Iniciar generación constante de estrellas
-    starInterval = setInterval(generateStars, 500); // Crear estrellas cada 500 ms
+    scoreDisplay.textContent = `Puntaje: ${score}`;
+    starsContainer.innerHTML = "";
+    specialMessage.style.display = "none"; // Esconder el mensaje al reiniciar
+    clearInterval(gameInterval);
 
     gameInterval = setInterval(() => {
-        obstaclePosition += obstacleSpeed;
-        obstacle.style.top = `${obstaclePosition}px`;
+        if (score >= 10) {
+            clearInterval(gameInterval); // Detener la generación de estrellas
+            return;
+        }
 
-        // Generar un nuevo obstáculo si sale de la pantalla
-        if (obstaclePosition > 500) {
-            obstaclePosition = -100;
-            obstacle.style.left = `${Math.floor(Math.random() * 340)}px`;
+        const star = document.createElement("div");
+        star.classList.add("star");
+        star.style.top = `${Math.random() * 350}px`;
+        star.style.left = `${Math.random() * 750}px`;
+
+        star.addEventListener("click", () => {
             score++;
             scoreDisplay.textContent = `Puntaje: ${score}`;
+            star.remove();
 
-            // Incrementar la velocidad del obstáculo
-            if (score % 2 === 0) {
-                obstacleSpeed++;
-                increaseStarSpeed(); // Incrementar velocidad de estrellas
-            }
-
-            // Mostrar celebración al alcanzar 10 puntos
+            // Mostrar el mensaje especial si llega a 10 puntos
             if (score === 10) {
-                showCelebration();
+                specialMessage.style.display = "block";
             }
-        }
+        });
 
-        // Detectar colisiones
-        const obstacleRect = obstacle.getBoundingClientRect();
-        const playerRect = playerCar.getBoundingClientRect();
+        starsContainer.appendChild(star);
 
-        if (
-            playerRect.left < obstacleRect.right &&
-            playerRect.right > obstacleRect.left &&
-            playerRect.top < obstacleRect.bottom &&
-            playerRect.bottom > obstacleRect.top
-        ) {
-            clearInterval(gameInterval);
-            clearInterval(starInterval); // Detener estrellas en caso de colisión
-            alert(`¡Game Over! Puntaje final: ${score}`);
-            window.location.reload(); // Reiniciar el juego
-        }
-    }, 20);
-}
-
-// Iniciar el juego automáticamente
-startGame();
+        setTimeout(() => {
+            star.remove();
+        }, 3000);
+    }, 1000);
+});
